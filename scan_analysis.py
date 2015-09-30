@@ -8,6 +8,7 @@ fileplot = raw_input(" name of the output file   :" )
 
 if type_job == 1:
     tools.writer_dist_F_E_CASSCF(filename,atom1,atom2,fileplot)
+    tools.
 #elif type_job == 2:
 #    tools.writer_dist_F_E_DFT(filename,atom1,atom2,fileplot)
 

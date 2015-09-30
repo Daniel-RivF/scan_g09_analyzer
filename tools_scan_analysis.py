@@ -111,17 +111,29 @@ def extract_E(filename):
     return all_E
     
 # Test type of calculation:
+def extract_E_W(filename,atom1,atom2):
+    dist0 = extract_distance(filename,atom1,atom2)[0][0]
+    dists = extract_distance(filename,atom1,atom2)[0]
+    dif_dists = np.array([i-dist0 for i in dists]) * 1.889725989
+    forces = np.array(extract_distance(filename,atom1,atom2)[1]) /82.387
+    W = [a*b for a,b in zip(forces,dif_dists)]
+    E = extract_E(filename)
+    E_W = [a+np.array(b) for a,b in zip(W,E)]
+    E_W1 = [ a.tolist() for a in E_W]
+    return E_W1
     
 
 def writer_dist_F_E_CASSCF(filename,atom1,atom2,fileplot):
     dist_list = extract_distance(filename,atom1,atom2)[0]
     F1_list = extract_distance(filename,atom1,atom2)[1]
     E_list = extract_E(filename)
-    all_dat = zip(dist_list,F1_list,E_list)
+    EW_list = extract_E_W(filename,atom1,atom2)
+    all_dat = zip(dist_list,F1_list,E_list,EW_list)
     with open(fileplot,'w') as f:
         for i in all_dat:
            a = map(str,i[2])
-           f.write('%s  %s  %s  \n' % (i[0], i[1], '  '.join(a) ))
+           b = map(str,i[3])
+           f.write('%s  %s  %s  %s \n' % (i[0], i[1], '  '.join(a), '  '.join(b) ))
     return 
 
 
