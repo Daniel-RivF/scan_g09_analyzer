@@ -16,18 +16,32 @@ def extract_dft_E(filename):
         all_E.append(c)
     return all_E
 
-def writer_dist_F_E_DFT(filename,atom1,atom2,fileplot):
-    dist_list = extract_dft_distance(filename,atom1,atom2)[0]
-    F1_list = extract_dft_distance(filename,atom1,atom2)[1]
-    E_list = extract_dft_E(filename)
-    EW_list = extract_dft_E_W(filename,atom1,atom2)
-    all_dat = zip(dist_list,F1_list,E_list,EW_list)
-    with open(fileplot,'w') as f:
-        for i in all_dat:
-           a = map(str,i[2])
-           b = map(str,i[3])
-           f.write('%s  %s  %s  %s \n' % (i[0], i[1], '  '.join(a), '  '.join(b) ))
-    return
+def writer_dist_F_E_DFT(filename,atom1,atom2,fileplot,homo_lumo ):
+    if homo_lumo == 0:
+        dist_list = extract_dft_distance(filename,atom1,atom2)[0]
+        F1_list = extract_dft_distance(filename,atom1,atom2)[1]
+        E_list = extract_dft_E(filename)
+        EW_list = extract_dft_E_W(filename,atom1,atom2)
+        all_dat = zip(dist_list,F1_list,E_list,EW_list)
+        with open(fileplot,'w') as f:
+            for i in all_dat:
+               a = map(str,i[2])
+               b = map(str,i[3])
+               f.write('%s  %s  %s  %s \n' % (i[0], i[1], '  '.join(a), '  '.join(b) ))
+    elif homo_lumo == 1:
+        dist_list = extract_dft_distance(filename,atom1,atom2)[0]
+        F1_list = extract_dft_distance(filename,atom1,atom2)[1]
+        E_list = extract_dft_E(filename)
+        EW_list = extract_dft_E_W(filename,atom1,atom2)
+        homo_lumo_l = extract_LUMO_E(filename)
+        all_dat = zip(dist_list,F1_list,E_list,EW_list,homo_lumo_l)
+        with open(fileplot,'w') as f:
+            for i in all_dat:
+               a = map(str,i[2])
+               b = map(str,i[3])
+               c = map(str,i[4])
+               f.write('%s  %s  %s  %s %s \n' % (i[0], i[1], '  '.join(a), '  '.join(b), '   '.join(c) ))
+        return
 
 
 
@@ -63,3 +77,33 @@ def extract_dft_E_W(filename,atom1,atom2):
     E_W = [a+np.array(b) for a,b in zip(W,E)]
     E_W1 = [ a.tolist() for a in E_W]
     return E_W1
+
+###### Homo/Lumo eigenvalues at each succesful constrained optimization
+### User must specify pop=always in the G09 input.
+
+
+def extract_LUMO_E(filename):
+    data = chunks_optim(filename)
+    homos = []
+    lumos = []
+    for datai in data:
+         a = parser_lists(datai,'The electronic state is','Condensed to atoms')
+         virt1 = [ i for i in a if 'virt' in i]
+         occ1 = [ i.split() for i in a if 'occ' in i]
+         homo = float(occ1[-1][-1])
+         lumo = list(floats([words for segments in virt1 for words in segments.split()]))[0]
+         lumos.append(lumo)
+         homos.append(homo)
+         #lumo = list(floats([words for segments in virt1 for words in segments.split)])
+    return zip(homos,lumos)
+
+def floats( aList ):
+    for v in aList:
+        try:
+            yield float(v)
+        except ValueError:
+            pass
+
+
+
+
