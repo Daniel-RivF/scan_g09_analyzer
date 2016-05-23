@@ -136,4 +136,28 @@ def writer_dist_F_E_CASSCF(filename,atom1,atom2,fileplot):
            f.write('%s  %s  %s  %s \n' % (i[0], i[1], '  '.join(a), '  '.join(b) ))
     return 
 
+def writer_xyz(filename):
 
+
+
+    data = chunks_optim(filename)
+    geoms = []
+    for i in data:
+        a = parser_lists(i,'Input orientation:','Distance matrix')[5:-1]
+        Z = [i.split()[1] for i in a]
+        for i,z in enumerate(Z):
+            if z=='1': Z[i]='H' 
+            elif z=='7': Z[i]='N'
+            elif z=='8': Z[i]='O'
+            elif z=='6': Z[i]='C'
+        xyz = zip(Z,[i.split()[3:] for i in a])
+        geoms.append(xyz)
+    Natom = len(geoms[0])
+    fileout=os.path.splitext(filename)[0] + 'GEOMS.xyz'
+    with open(fileout,'w') as f:
+        for geom in geoms:
+            f.write('%s \n' % Natom)
+            f.write(' COSA \n')
+            [f.write('%s  %s \n' % (g[0], ' '.join(g[1]))) for g in geom]
+    return
+            
