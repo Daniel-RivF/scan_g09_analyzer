@@ -137,9 +137,6 @@ def writer_dist_F_E_CASSCF(filename,atom1,atom2,fileplot):
     return 
 
 def writer_xyz(filename):
-
-
-
     data = chunks_optim(filename)
     geoms = []
     for i in data:
@@ -153,7 +150,7 @@ def writer_xyz(filename):
         xyz = zip(Z,[i.split()[3:] for i in a])
         geoms.append(xyz)
     Natom = len(geoms[0])
-    fileout=os.path.splitext(filename)[0] + 'GEOMS.xyz'
+    fileout=os.path.splitext(filename)[0] + '.GEOMS.xyz'
     with open(fileout,'w') as f:
         for geom in geoms:
             f.write('%s \n' % Natom)
